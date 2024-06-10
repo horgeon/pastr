@@ -16,11 +16,20 @@ import (
 const DbFile = "data.db"
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-var host = ""
+
+var useForwardedHeaders = false
 var keyLength = 4
 
 func init() {
-	host = os.Getenv("PASTR_HOST")
+	newUseForwardedHeaders, err := strconv.ParseBool(os.Getenv("PASTR_USE_FORWARDED_HEADERS"))
+	if err == nil {
+		useForwardedHeaders = newUseForwardedHeaders
+	} else {
+		envValue := os.Getenv("PASTR_USE_FORWARDED_HEADERS")
+		if envValue != "" {
+			log.Print("Invalid PASTR_USE_FORWARDED_HEADERS: \"", envValue, "\"")
+		}
+	}
 	newKeyLength, err := strconv.Atoi(os.Getenv("PASTR_KEY_LENGTH"))
 	if err == nil && newKeyLength >= 4 && newKeyLength <= 12 {
 		keyLength = newKeyLength
@@ -30,6 +39,7 @@ func init() {
 			log.Print("Invalid PASTR_KEY_LENGTH: \"", envValue, "\"")
 		}
 	}
+	log.Print("Configuration value PASTR_USE_FORWARDED_HEADERS = ", useForwardedHeaders)
 	log.Print("Configuration value PASTR_KEY_LENGTH = ", keyLength)
 }
 
@@ -40,7 +50,18 @@ func main() {
 			body, _ := io.ReadAll(r.Body)
 			key, err := setKey(string(body))
 			if err == nil {
-				fmt.Fprint(w, combine(host, key))
+				scheme := "http"
+				host := r.Host
+				if useForwardedHeaders {
+					scheme = r.Header.Get("X-Forwarded-Proto")
+					host = r.Header.Get("X-Forwarded-Host")
+				}
+				url := url.URL{
+					Scheme: scheme,
+					Host:   host,
+					Path:   key,
+				}
+				fmt.Fprint(w, url.String())
 				log.Printf("New content posted at key %s", key)
 			} else {
 				log.Print("Error when posting content: ", err)
@@ -121,14 +142,6 @@ func setKey(value string) (string, error) {
 func isUrl(value string) bool {
 	_, err := url.ParseRequestURI(value)
 	return err == nil
-}
-
-func combine(host string, key string) string {
-	url, err := url.JoinPath(host, key)
-	if err != nil {
-		return key
-	}
-	return url
 }
 
 func genKey() string {
