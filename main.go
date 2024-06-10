@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 const DbFile = "data.db"
@@ -93,6 +95,10 @@ func main() {
 }
 
 func getKey(key string) (string, error) {
+	if !isAlphanumeric(key) {
+		return "", errors.New("key is not alphanumeric")
+	}
+
 	file, err := os.Open(DbFile)
 	if err != nil {
 		return "", err
@@ -142,6 +148,16 @@ func setKey(value string) (string, error) {
 func isUrl(value string) bool {
 	_, err := url.ParseRequestURI(value)
 	return err == nil
+}
+
+func isAlphanumeric(value string) bool {
+	for _, c := range value {
+		if !unicode.IsDigit(c) && !unicode.IsLetter(c) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func genKey() string {
