@@ -7,7 +7,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - PASTR_HOST=http://localhost:3000
+      - PASTR_DATA_PATH=/app/data
       - PASTR_KEY_LENGTH=4
+      - PASTR_USE_FORWARDED_HEADERS=false
     volumes:
-      - "./data.db:/app/data.db"
+      - "./data:/app/data"
