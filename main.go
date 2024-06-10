@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -23,7 +24,13 @@ func init() {
 	newKeyLength, err := strconv.Atoi(os.Getenv("PASTR_KEY_LENGTH"))
 	if err == nil && newKeyLength >= 4 && newKeyLength <= 12 {
 		keyLength = newKeyLength
+	} else {
+		envValue := os.Getenv("PASTR_KEY_LENGTH")
+		if envValue != "" {
+			log.Print("Invalid PASTR_KEY_LENGTH: \"", envValue, "\"")
+		}
 	}
+	log.Print("Configuration value PASTR_KEY_LENGTH = ", keyLength)
 }
 
 func main() {
@@ -34,6 +41,9 @@ func main() {
 			key, err := setKey(string(body))
 			if err == nil {
 				fmt.Fprint(w, combine(host, key))
+				log.Printf("New content posted at key %s", key)
+			} else {
+				log.Print("Error when posting content: ", err)
 			}
 			return
 		}
