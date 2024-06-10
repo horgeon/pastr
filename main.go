@@ -10,7 +10,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const DbFile = "data.db"
@@ -20,7 +19,6 @@ var host = ""
 var keyLength = 4
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	host = os.Getenv("PASTR_HOST")
 	newKeyLength, err := strconv.Atoi(os.Getenv("PASTR_KEY_LENGTH"))
 	if err == nil && newKeyLength >= 4 && newKeyLength <= 12 {
