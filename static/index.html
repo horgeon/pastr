@@ -13,22 +13,51 @@
     <textarea rows="5" id="input"></textarea>
     <button onclick="shorten()">Shorten</button>
     <div id="result" style="display: none">
-      <blockquote id="url"></blockquote>
+      <a id="url"><blockquote></blockquote></a>
       <button onClick="copy()">Copy</button>
+    </div>
+    <div id="login" style="display: none">
+      <a class="button" href="/_new" target="_blank">Login</a>
     </div>
     <script type="text/javascript">
       function copy() {
         navigator.clipboard.writeText(document.getElementById("url").innerHTML);
       }
 
+      async function detectLogin() {
+        await fetch("/_new", {
+          method: "GET"
+        }).then((response) => {
+          // Page should return 405
+          // If it is any other code, then there is probably a login action to be performed
+          if(response.status != 405) {
+            document.getElementById("login").style.display = "";
+          }
+        }).catch((error) => {
+          // Page should return 405
+          // If it is any other code, then there is probably a login action to be performed
+          if(error.status != 405) {
+            document.getElementById("login").style.display = "";
+          }
+        });
+      }
+
       async function shorten() {
         const response = await fetch("/_new", {
           method: "POST",
-          body: document.getElementById("input").value,
+          body: document.getElementById("input").value
         });
-        document.getElementById("url").innerHTML = await response.text();
-        document.getElementById("result").style = "";
+        if(response.ok) {
+          let url = await response.text();
+          document.querySelector("#url blockquote").innerHTML = url;
+          document.getElementById("url").href = url;
+          document.getElementById("result").style = "";
+        } else {
+          alert("Error " + response.status + " " + response.statusText);
+        }
       }
+
+      detectLogin();
     </script>
   </body>
 </html>
