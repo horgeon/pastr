@@ -100,7 +100,7 @@ func main() {
 
 		query := r.URL.Path[1:]
 		if query == "" {
-			http.ServeFile(w, r, "index.html")
+			http.ServeFile(w, r, "static/index.html")
 			return
 		}
 
