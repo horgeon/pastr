@@ -22,7 +22,7 @@
       }
 
       async function shorten() {
-        const response = await fetch("/", {
+        const response = await fetch("/_new", {
           method: "POST",
           body: document.getElementById("input").value,
         });

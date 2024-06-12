@@ -72,7 +72,7 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/_new", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			defer r.Body.Close()
 			body, _ := io.ReadAll(r.Body)
@@ -98,6 +98,10 @@ func main() {
 			return
 		}
 
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Path[1:]
 		if query == "" {
 			http.ServeFile(w, r, "static/index.html")

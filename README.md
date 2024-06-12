@@ -15,7 +15,7 @@ This fork differs from the main project by:
 - Now you can either use the frontend by opening the server URL in a browser, or call the API by sending a POST request to it:
 
 ```sh
-curl -X POST http://localhost:3000 -d "Hello, World"
+curl -X POST http://localhost:3000/_new -d "Hello, World"
 ```
 
 - If you used a URL as the content, then by opening the shortened link you will be redirected to the original URL; otherwise it will be displayed as plain text.
