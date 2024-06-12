@@ -117,7 +117,6 @@ func main() {
 		}
 
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Not Found")
 	})
 
 	http.ListenAndServe(":3000", nil)
